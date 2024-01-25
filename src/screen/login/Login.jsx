@@ -1,47 +1,55 @@
-import React from 'react'
-import { useState } from 'react';
-import { auth } from '../../config/firebase-config/configs';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useContext, useRef, useState } from 'react'
+import { TextField, Button, Box, CircularProgress, Typography } from '@mui/material'
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../config/firebaseconfig/Firebaseconfig';
+import userContext from '../../usercontext/UserContext';
+
 
 function Login() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+  // usestate
+  const [loading, setLoding] = useState(false)
 
-    const loginAuthentication = (event) => {
-        event.preventDefault();
-        console.log('Input Value:', email);
-        console.log('Input Value:', password);
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log(user);
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorMessage);
-            });
-    };
+  //  useNavigate
+  const navigate = useNavigate()
 
-    return (
-        <div className=''>
-            <div className='bg-[#F5F5F5] mt-20 p-[30px] rounded-xl'>
-                <h2 className=' text-[#333399] text-2xl text-center  font-bold '>LogIn</h2>
-                <form onSubmit={loginAuthentication} >
-                    <div className='flex justify-center'>
-                        <input type="text" placeholder="Enter email" id='email' className="input  border-[#333399]  w-full max-w-xs mt-6" onChange={(e) => setEmail(e.target.value)} value={email} />
-                    </div>
-                    <div className='flex justify-center'>
-                        <input type="password" placeholder="Enter password" id='password' className="input border-[#333399] w-full max-w-xs mt-3" onChange={(e) => setPassword(e.target.value)} value={password} />
-                    </div>
-                    <div className='flex justify-center'>
-                        <button className='bg-[#333399] text-[#ffff] px-6 rounded-md mt-6  py-2 text-xl font-bold' type='submit'>LogIn</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+  // useContext
+  const { isUser, setIsUser } = useContext(userContext)
 
-    )
+  // form value
+  const email = useRef()
+  const password = useRef()
+
+  function signIn(e) {
+    e.preventDefault()
+
+    const userEmail = email.current.value;
+    const userPassword = password.current.value;
+
+    setLoding(!loading)
+    signInWithEmailAndPassword(auth, userEmail, userPassword)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        setIsUser(true)
+        navigate('/')
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage);
+      });
+
+  }
+  return (
+    <Box sx={{ height: '80vh' }} className='d-flex justify-content-center align-item-center'>
+      <form onSubmit={signIn} className='d-flex justify-content-center flex-column w-25 gap-5'>
+        <TextField type='email' label="Email" variant="standard" inputRef={email} required />
+        <TextField type='password' label="Password" variant="standard" inputRef={password} required />
+        <Button type='submit' variant="contained">{loading ? <CircularProgress sx={{ color: 'white' }} size={20} /> : 'LogIn'}</Button>
+      </form>
+    </Box>
+  )
 }
 
 export default Login

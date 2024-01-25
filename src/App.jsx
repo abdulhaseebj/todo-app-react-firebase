@@ -1,9 +1,9 @@
 import React from 'react'
-import Routers from './config/router-config/routes'
+import Routerconfig from './config/routerconfig/Routerconfig'
 
 function App() {
   return (
-    <Routers/>
+    <Routerconfig/>
   )
 }
 

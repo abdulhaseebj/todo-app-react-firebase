@@ -1,46 +1,46 @@
 import React from 'react'
-import { useState } from 'react';
-import {  createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../config/firebase-config/configs';
-
+import { TextField, Button, Box, CircularProgress, Typography } from '@mui/material'
+import { useState, useRef } from 'react'
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../../config/firebaseconfig/Firebaseconfig';
+import { useNavigate } from 'react-router-dom';
 function Signup() {
+  // usestate
+  const [loading, setLoding] = useState(false)
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  //  useNavigate
+  const navigate = useNavigate()
 
-  const signupAuthentication = (event) => {
-    event.preventDefault();
-    // console.log('Input Value:', email);
-    // console.log('Input Value:', password);
-    createUserWithEmailAndPassword(auth, email, password)
+  // form value
+  const email = useRef()
+  const password = useRef()
+
+  function signUp(e) {
+    e.preventDefault()
+    const userEmail = email.current.value;
+    const userPassword = password.current.value;
+    setLoding(!loading)
+    createUserWithEmailAndPassword(auth, userEmail, userPassword)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
+        navigate('/login')
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(errorMessage);
       });
-  };
 
+  }
   return (
-    <div className=''>
-      <div className='bg-[#F5F5F5] mt-20 p-[30px] rounded-xl'>
-        <h2 className=' text-[#333399] text-2xl text-center  font-bold '>SignUp</h2>
-        <form onSubmit={signupAuthentication} >
-          <div className='flex justify-center'>
-            <input type="text" placeholder="Enter email" id='email' className="input  border-[#333399]  w-full max-w-xs mt-6" onChange={(e) => setEmail(e.target.value)} value={email} />
-          </div>
-          <div className='flex justify-center'>
-            <input type="password" placeholder="Enter password" id='password' className="input border-[#333399] w-full max-w-xs mt-3" onChange={(e) => setPassword(e.target.value)} value={password} />
-          </div>
-          <div className='flex justify-center'>
-            <button className='bg-[#333399] text-[#ffff] px-6 rounded-md mt-6  py-2 text-xl font-bold' type='submit'>SignUp</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Box sx={{ height: '80vh' }} className='d-flex justify-content-center align-item-center'>
+      <form onSubmit={signUp} className='d-flex justify-content-center flex-column w-25 gap-5'>
+        <TextField type='email' label="Email" variant="standard" inputRef={email} required />
+        <TextField type='password' label="Password" variant="standard" inputRef={password} required />
+        <Button type='submit' variant="contained">{loading ? <CircularProgress sx={{ color: 'white' }} size={20} /> : 'SignUp'}</Button>
+      </form>
+    </Box>
   )
 }
 
